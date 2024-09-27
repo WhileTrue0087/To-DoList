@@ -2,30 +2,25 @@ import customtkinter
 import re
 import json
 class MyStylebox(customtkinter.CTkFrame):
-    def __init__(self, master):
+    def __init__(self, master = None):
         super().__init__(master)
         # Tilte for style mode in top
         self.title = customtkinter.CTkLabel(self, text="Style Mode", fg_color="gray30",font=("Verdana",14), corner_radius=6)
         self.title.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="ew", columnspan=2)
         
         # First button
-        self.button = customtkinter.CTkButton(self, corner_radius=5, text="Light Mode", font=("Tahoma" , 14) ,command=self.button_working)
+        self.button = customtkinter.CTkButton(self, corner_radius=5, text="Light Mode", font=("Tahoma" , 14) ,command=light_button)
         self.button.grid(row=1, column=0, padx=20, pady=(35, 0), sticky="e")
         
         # Second button
-        self.button_2 = customtkinter.CTkButton(self, corner_radius=5, text="Dark Mode", font=("Tahoma" , 14) ,command=self.button_working_2)
+        self.button_2 = customtkinter.CTkButton(self, corner_radius=5, text="Dark Mode", font=("Tahoma" , 14) ,command=dark_button)
         self.button_2.grid(row=2, column=0, padx=20, pady=(20, 5), sticky="e")
 
-    def button_working(self):
-        customtkinter.set_appearance_mode("light") # to Make mode light
 
-    def button_working_2(self):
-        customtkinter.set_appearance_mode("dark")  # to Make mode dark
 
 class History_list(customtkinter.CTkScrollableFrame):
-    def __init__(self, master, values):
+    def __init__(self, master = None):
         super().__init__(master)
-        self.values = values
         self.history_lists = []
         self.empty_title = None
         self.rows = 3   # rows start at 3 cuz the 2 before is titles
@@ -137,7 +132,7 @@ class History_list(customtkinter.CTkScrollableFrame):
         self.history_on()
         self.rows += 1
 class EntryBox(customtkinter.CTkScrollableFrame):
-    def __init__(self, master, History_list):
+    def __init__(self, History_list , master=None):
         super().__init__(master)
         self.History_list = History_list
         self.rows = 2
@@ -308,22 +303,31 @@ class Todo(customtkinter.CTk):
         self.grid_rowconfigure(1, weight=1)  # For MyStylebox
         self.grid_rowconfigure(2, weight=1)  # For EntryBox
 
-        # For History_list
-        self.history_list = History_list(self, values=[])
-        self.history_list.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nsew")
-
-        # For style_mode
-        self.style_mode = MyStylebox(self)
-        self.style_mode.grid(row=1, column=0, padx=10, pady=(10, 5), sticky="nsw")
-
-        # For entry box
-        self.entry_box = EntryBox(self,self.history_list)
-        self.entry_box.grid(row=0, column=1, rowspan=2, padx=10, pady=(10, 5), sticky="nsew")  # Full height
+        EachClass(self)
 
 
 def main():
-    test = Todo()
-    test.mainloop()
+    app = Todo()
+    app.mainloop()
+
+def light_button():
+    return customtkinter.set_appearance_mode("light") # to Make mode light
+
+def dark_button():
+    return customtkinter.set_appearance_mode("dark")  # to Make mode dark
+    
+def EachClass(todo_instance):
+    # For History_list
+    history_list = History_list(master=todo_instance)
+    history_list.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nsew")
+
+    # For style_mode
+    style_mode = MyStylebox(master=todo_instance)
+    style_mode.grid(row=1, column=0, padx=10, pady=(10, 5), sticky="nsw")
+
+    # For entry box
+    entry_box = EntryBox(history_list,master=todo_instance)
+    entry_box.grid(row=0, column=1, rowspan=2, padx=10, pady=(10, 5), sticky="nsew")  # Full height
 
 if __name__ == "__main__":
     main()
