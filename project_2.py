@@ -28,14 +28,16 @@ class History_list(customtkinter.CTkScrollableFrame):
         self.values = values
         self.history_lists = []
         self.empty_title = None
+        self.rows = 3
         self.title = customtkinter.CTkLabel(self, text="History list", fg_color="gray30",font=("Verdana",14) ,corner_radius=6)
         self.title.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="snew")
-        # self.load_history()
         if len(self.history_lists) == 0:
             self.empty_history()
         else:
             
             self.history_on()
+        # self.load_history()
+        self.load_data_HistoryList()
         # Make row
         for i, value in enumerate(self.values):
             history_list = customtkinter.CTkCheckBox(self, text=value)
@@ -66,14 +68,47 @@ class History_list(customtkinter.CTkScrollableFrame):
 
         self.title = customtkinter.CTkLabel(self, text="status", fg_color="gray30", font=("Verdana",14),corner_radius=6)
         self.title.grid(row=2, column=1, padx=5, pady=(10, 0), sticky="")
-    def check_Add(self , item_added):
-        # Create a label for the added text
-        txt = customtkinter.CTkLabel(self, text="Added", text_color="#2069A4", font=("Helvetica", 14, "bold"))
-        txt.grid(row=len(self.history_lists) + 3, column=1, padx=2, pady=(10, 0), sticky="w")
 
+
+    def save_data_HistoryList(self , data):
+            self.name , self.status = data
+            with open("history_list_data.csv", "a") as file:
+                    file.write(f"{self.name},{self.status}\n")
+                    
+    def load_data_HistoryList(self):
+        try:
+            with open("history_list_data.csv") as f:
+                self.history_on()
+                for line in f : 
+                    item , status = line.rstrip().split(",")
+                    title_item = customtkinter.CTkCheckBox(self, text=item, command=lambda: None)
+                    title_item.grid(row=self.rows, column=0, padx=40, pady=(10, 0), sticky="w")
+                    if status == "Added":
+                        txt = customtkinter.CTkLabel(self, text=status, text_color="#2069A4", font=("Helvetica", 14, "bold"))
+                        txt.grid(row=self.rows, column=1, padx=2, pady=(10, 0), sticky="w") 
+                    elif status == "Removed":
+                        txt = customtkinter.CTkLabel(self, text=status, text_color="#FF0000", font=("Helvetica", 14, "bold"))
+                        txt.grid(row=self.rows, column=1, padx=2, pady=(10, 0), sticky="w") 
+                    else :
+                        txt = customtkinter.CTkLabel(self, text=status, text_color="#4CAF50", font=("Helvetica", 14, "bold"))
+                        txt.grid(row=self.rows, column=1, padx=2, pady=(10, 0), sticky="w") 
+                    self.rows += 1
+                       
+
+        except FileNotFoundError:
+            # If the file does not exist, simply ignore
+            pass
+        except json.JSONDecodeError:
+            # Handle the case where the JSON is invalid
+            print("Error: Invalid JSON data in history_data.json. The file will be ignored.")
+    def check_Add(self , item_added):
         # Create a checkbox with the item added
         new_history_item = customtkinter.CTkCheckBox(self, text=f"{item_added}", command=lambda: None)
-        new_history_item.grid(row=len(self.history_lists) + 3, column=0, padx=7, pady=(10, 0), sticky="w")
+        new_history_item.grid(row=self.rows  , column=0, padx=7, pady=(10, 0), sticky="w")
+        # Create a label for the added text
+        txt = customtkinter.CTkLabel(self, text="Added", text_color="#2069A4", font=("Helvetica", 14, "bold"))
+        txt.grid(row=self.rows  , column=1, padx=2, pady=(10, 0), sticky="w")
+        self.rows += 1
         
         # Append the new checkbox to the history list
         self.history_lists.append(new_history_item)
@@ -84,32 +119,32 @@ class History_list(customtkinter.CTkScrollableFrame):
     def check_remove(self , item_removed):
     # Create a checkbox with the item removed
         new_history_item = customtkinter.CTkCheckBox(self, text=(f"{item_removed}"), command=lambda: None)
-        new_history_item.grid(row=len(self.history_lists) + 3, column=0, padx=7, pady=(10, 0), sticky="w")
+        new_history_item.grid(row=self.rows, column=0, padx=7, pady=(10, 0), sticky="w")
         
         # Append the new checkbox to the history list
         self.history_lists.append(new_history_item)
 
         # Optionally, add a label for "Removed"
         removed_label = customtkinter.CTkLabel(self, text="Removed", text_color="#FF0000", font=("Helvetica", 14 ,"bold"))
-        removed_label.grid(row=len(self.history_lists) + 2, column=1, padx=2, pady=(10, 0), sticky="w")
+        removed_label.grid(row=self.rows , column=1, padx=2, pady=(10, 0), sticky="w")
 
-
+        self.rows += 1
         self.history_on()
 
     def check_Done(self , item_Done):
 
         new_history_item = customtkinter.CTkCheckBox(self, text=(f"{item_Done}"), command=lambda: None)
-        new_history_item.grid(row=len(self.history_lists) + 3, column=0, padx=7, pady=(10, 0), sticky="w")
+        new_history_item.grid(row=self.rows , column=0, padx=7, pady=(10, 0), sticky="w")
         
         # Append the new checkbox to the history list
         self.history_lists.append(new_history_item)
 
         # Optionally, add a label for "Done"
         Done_label = customtkinter.CTkLabel(self, text="Done", text_color="#4CAF50", font=("Helvetica", 14 ,"bold"))
-        Done_label.grid(row=len(self.history_lists) + 2, column=1, padx=2, pady=(10, 0), sticky="w")
+        Done_label.grid(row=self.rows, column=1, padx=2, pady=(10, 0), sticky="w")
 
         self.history_on()
-
+        self.rows += 1
 class EntryBox(customtkinter.CTkScrollableFrame):
     def __init__(self, master, History_list):
         super().__init__(master)
@@ -172,8 +207,9 @@ class EntryBox(customtkinter.CTkScrollableFrame):
             if i.get() == 1:
                 i.configure(text_color=("#4CAF50"),font=("Helvetica",20,"bold")) 
                 #   To orgnize any action that will happen in EntryBox in a list of dictionary for each item 
-                self.items_for_historyList.append({"item" : i._text , "status" : "Done"})
-                # used global data in save_data_entryBox function to update color value 
+                # self.items_for_historyList.append({})
+                # self.items_for_historyList.append({"Name" : i._text , "status" : "Done"}) ===> to selet
+                self.History_list.save_data_HistoryList([i._text,"Done"]) 
                 self.History_list.check_Done(i._text)
                 for item in self.data : 
                     if item["text"] == i.cget("text"):
@@ -181,7 +217,7 @@ class EntryBox(customtkinter.CTkScrollableFrame):
             else:
                 None
         self.save_data_entryBox()
-        print(self.items_for_historyList)
+        # to add datas to save_HistoryList methods
     def push_items(self):
         if self.entry.get():
             if len(self.items_in_entryBox) == 0:
@@ -193,7 +229,9 @@ class EntryBox(customtkinter.CTkScrollableFrame):
 
 
                 #   To orgnize any action that will happen in EntryBox in a list of dictionary for each item 
-                self.items_for_historyList.append({"item" : title_item._text , "status" : "added"})
+                # self.items_for_historyList.append({"Name" : title_item._text , "status" : "Added"}) ===> to selet
+                self.History_list.save_data_HistoryList([title_item._text,"Added"]) 
+                # self.items_for_historyList = [item for item in self.items_for_historyList] + {}
                 # Call the check_event method in History_list with the new item's text
                 self.History_list.check_Add(self.entry.get())
 
@@ -206,7 +244,8 @@ class EntryBox(customtkinter.CTkScrollableFrame):
              self.show_warning("Please enter a value!")
         # save datas 
         self.save_data_entryBox()
-        print(self.items_for_historyList)
+        # to add datas to save_HistoryList methods
+        self.History_list.save_data_HistoryList(self.items_for_historyList)
     def remove_item(self):
         items_to_remove = [item for item in self.items_in_entryBox if item.get() == 1]
         
@@ -217,7 +256,10 @@ class EntryBox(customtkinter.CTkScrollableFrame):
         
         for item in items_to_remove:
             #   To orgnize any action that will happen in EntryBox in a list of dictionary for each item 
-            self.items_for_historyList.append({"item" : item._text , "status" : "Removed"})
+            # self.items_for_historyList.append({"Name" : item._text , "status" : "Removed"}) ===> to delete
+            self.History_list.save_data_HistoryList([item._text,"Removed"]) 
+            
+            # self.items_for_historyList = [item for item in self.items_for_historyList] + {}
             item.grid_forget()  # Remove the checkbox from the grid
             self.History_list.check_remove(item._text) # For add items that removed to history_list
             self.items_in_entryBox.remove(item)  # Remove from the list
@@ -225,7 +267,8 @@ class EntryBox(customtkinter.CTkScrollableFrame):
         # Update the grid positions of remaining items
         self.update_item_positions()
         self.save_data_entryBox()
-        print(self.items_for_historyList)
+        # to add datas to save_HistoryList methods
+        self.History_list.save_data_HistoryList(self.items_for_historyList)
     def update_item_positions(self):
         for index, item in enumerate(self.items_in_entryBox):
             item.grid(row=index + 2, column=0, padx=40, pady=(10, 0), sticky="w")  # Adjust row index as needed
