@@ -1,2 +1,4 @@
 history_list_data.csv
-history_entry_data.csv
+history_entry_data.json
+*.csv
+*.json
