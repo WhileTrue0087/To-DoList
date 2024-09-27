@@ -65,21 +65,22 @@ class History_list(customtkinter.CTkScrollableFrame):
         try:
             with open("history_list_data.csv") as f:
                 self.history_on()
-                for line in f : 
-                    item , status = line.rstrip().split(",")
-                    title_item = customtkinter.CTkCheckBox(self, text=item, command=lambda: None)
-                    title_item.grid(row=self.rows, column=0, padx=40, pady=(10, 0), sticky="w")
-                    if status == "Added":
-                        txt = customtkinter.CTkLabel(self, text=status, text_color="#2069A4", font=("Helvetica", 14, "bold"))
-                        txt.grid(row=self.rows, column=1, padx=2, pady=(10, 0), sticky="w") 
-                    elif status == "Removed":
-                        txt = customtkinter.CTkLabel(self, text=status, text_color="#FF0000", font=("Helvetica", 14, "bold"))
-                        txt.grid(row=self.rows, column=1, padx=2, pady=(10, 0), sticky="w") 
-                    else :
-                        txt = customtkinter.CTkLabel(self, text=status, text_color="#4CAF50", font=("Helvetica", 14, "bold"))
-                        txt.grid(row=self.rows, column=1, padx=2, pady=(10, 0), sticky="w") 
-                    self.rows += 1
-                       
+                if f :
+                    for line in f : 
+                        item , status = line.rstrip().split(",")
+                        title_item = customtkinter.CTkCheckBox(self, text=item, command=lambda: None)
+                        title_item.grid(row=self.rows, column=0, padx=40, pady=(10, 0), sticky="w")
+                        if status == "Added":
+                            txt = customtkinter.CTkLabel(self, text=status, text_color="#2069A4", font=("Helvetica", 14, "bold"))
+                            txt.grid(row=self.rows, column=1, padx=2, pady=(10, 0), sticky="w") 
+                        elif status == "Removed":
+                            txt = customtkinter.CTkLabel(self, text=status, text_color="#FF0000", font=("Helvetica", 14, "bold"))
+                            txt.grid(row=self.rows, column=1, padx=2, pady=(10, 0), sticky="w") 
+                        else :
+                            txt = customtkinter.CTkLabel(self, text=status, text_color="#4CAF50", font=("Helvetica", 14, "bold"))
+                            txt.grid(row=self.rows, column=1, padx=2, pady=(10, 0), sticky="w") 
+                        self.rows += 1
+
 
         except FileNotFoundError:
             # If the file does not exist, simply ignore
@@ -283,12 +284,12 @@ class EntryBox(customtkinter.CTkScrollableFrame):
         # Button to close the warning window
         close_button = customtkinter.CTkButton(warning_window, text="Close", command=warning_window.destroy)
         close_button.pack(pady=5)
-    
+
 class Todo(customtkinter.CTk):
     def __init__(self):
         super().__init__()
 
-        self.title("ToDo Test")
+        self.title("ToDo List")
         self.geometry("1130x550")
         customtkinter.set_appearance_mode("dark")
         customtkinter.set_default_color_theme("green")
